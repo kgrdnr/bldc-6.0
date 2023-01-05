@@ -113,9 +113,18 @@ static THD_FUNCTION(led_thread, arg) {
 		mc_state state2 = mc_interface_get_state();
 		mc_interface_select_motor_thread(1);
 		if ((state1 == MC_STATE_RUNNING) || (state2 == MC_STATE_RUNNING)) {
-			ledpwm_set_intensity(LED_GREEN, 1.0);
-		} else {
-			ledpwm_set_intensity(LED_GREEN, 0.2);
+			//ledpwm_set_intensity(LED_GREEN, 1.0);
+			//ledpwm_set_intensity(LED_GREEN, (mc_interface_get_battery_level(NULL)*mc_interface_get_battery_level(NULL)));
+			//ledpwm_set_intensity(LED_RED, (1.0f - mc_interface_get_battery_level(NULL)*mc_interface_get_battery_level(NULL)));
+			ledpwm_set_intensity(LED_GREEN, mc_interface_get_battery_level(NULL));
+			ledpwm_set_intensity(LED_RED, 1.0f - mc_interface_get_battery_level(NULL));
+
+		} else {			//no dimming while not running because the color shifts towards green when dim
+			//ledpwm_set_intensity(LED_GREEN, 0.2);
+			ledpwm_set_intensity(LED_GREEN, mc_interface_get_battery_level(NULL));
+			ledpwm_set_intensity(LED_RED, 1.0f - mc_interface_get_battery_level(NULL));
+
+			
 		}
 
 		mc_fault_code fault = mc_interface_get_fault();
@@ -140,9 +149,9 @@ static THD_FUNCTION(led_thread, arg) {
 			}
 
 			chThdSleepMilliseconds(500);
-		} else {
-			ledpwm_set_intensity(LED_RED, 0.0);
-		}
+		} //else {
+			//ledpwm_set_intensity(LED_RED, 0.0);
+		//}
 
 		chThdSleepMilliseconds(10);
 	}
